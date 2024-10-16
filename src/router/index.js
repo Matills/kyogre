@@ -14,6 +14,12 @@ const routes = [
     component: () => import('../views/Login.vue')
   },
   {
+    path: '/trading',
+    name: 'trading',
+    component: () => import('../views/Trading.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     redirect: () => {
