@@ -1,4 +1,5 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router';
+import store from '../store';
 
 const routes = [
   {
@@ -12,11 +13,31 @@ const routes = [
     name: 'login',
     component: () => import('../views/Login.vue')
   },
-]
+  {
+    path: '/:pathMatch(.*)*',
+    name: 'not-found',
+    redirect: () => {
+      const isAuthenticated = !!store.state.user;
+      if (!isAuthenticated) {
+        return { name: 'login' };
+      }
+      return { name: 'home' };
+    },
+  },
+];
 
 const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
-  routes
-})
+  routes,
+});
 
-export default router
+router.beforeEach((to, from, next) => {
+  const isAuthenticated = !!store.state.user;
+  if (to.meta.requiresAuth && !isAuthenticated) {
+    next({ name: 'login' });
+  } else {
+    next();
+  }
+});
+
+export default router;
