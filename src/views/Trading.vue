@@ -91,6 +91,7 @@ import { getCripto } from '@/api/criptoService'
 import { createTransaction } from '@/api/transaccionService'
 import AlertModal from '@/components/AlertModal.vue'
 import coins from '@/data/coins.js'
+import { formatDate } from '@/helpers/parsers'
 
 const store = useStore()
 const action = ref('purchase')
@@ -147,17 +148,16 @@ const confirmTransaction = async () => {
 		showAlert.value = true
 		alertType.value = 'error'
 		alertTitle.value = 'Error'
-		alertMessage.value = 'Por favor, ingresa un monto y selecciona ambas monedas.';
+		alertMessage.value = 'Por favor, ingresa un monto y selecciona una moneda.';
 		return;
 	}
-
 	const transaction = {
-		user_id: store.state.user?.id,
+		user_id: store.state.user.username,
 		action: action.value === 'purchase' ? 'purchase' : 'sale',
 		crypto_code: selectedCrypto.value.toLowerCase(),
 		crypto_amount: convertedAmount.value,
-		money: amount.value,
-		datetime: new Date().toLocaleString('es-AR', { hour12: false })
+		money: amount.value.toString(),
+		datetime: formatDate(new Date())
 	}
 
 	try {
