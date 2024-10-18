@@ -1,20 +1,17 @@
 import axios from 'axios';
 
-const apiUrl = 'https://laboratorio3-5459.restdb.io/rest/transactions';
-const apiKey = '64a57c2b86d8c50fe6ed8fa5';
-
 const apiClient = axios.create({
-  baseURL: apiUrl,
+  baseURL: 'https://laboratorio-afe2.restdb.io/rest/',
   withCredentials: false,
-  headers: { 
-    'x-apikey': apiKey,
-    Accept: 'application/json',
+  headers:{
+    'x-apikey': '650b53356888544ec60c00bf',
+    'Content-Type':  'application/json'
   },
-});
+})
 
 export const createTransaction = async (transaction) => {
-  try{
-    const response = await apiClient.post('/', transaction);
+  try {
+    const response = await apiClient.post('/transactions', transaction);
     return response.data;
   } catch (error) {
     throw new Error('No se pudo realizar la transacción.');

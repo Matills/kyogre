@@ -1,11 +1,17 @@
 <template>
 	<div class="min-h-screen flex flex-col items-start justify-start bg-secondary text-white pt-4 pl-4">
 		<div class="flex items-center mb-4">
-			<h1 class="text-primary text-2xl font-bold mr-2">Comprar</h1>
-			<input type="radio" v-model="action" value="purchase" class="text-primary mr-2 mt-1" @change="updateConversion"/>
-			<h1 class="text-primary text-2xl font-bold mx-2">/</h1>
-			<h1 class="text-primary text-2xl font-bold mr-2">Vender</h1>
-			<input type="radio" v-model="action" value="sale" class="text-primary mt-1" @change="updateConversion"/>
+			<h1 class="text-2xl font-bold mr-2">Seleccione:</h1>
+			<button 
+					@click="action = 'purchase'; updateConversion()" 
+					:class="['text-2xl font-bold mr-4', action === 'purchase' ? 'text-accent' : 'text-primary']">
+					Comprar
+			</button>
+			<button 
+					@click="action = 'sale'; updateConversion()" 
+					:class="['text-2xl font-bold', action === 'sale' ? 'text-accent' : 'text-primary']">
+					Vender
+			</button>
 		</div>
 
 		<div class="mb-4 w-full max-w-md">
@@ -23,7 +29,7 @@
 						class="p-2 w-full bg-white text-black rounded-lg"
 					/>
 			</div>
-			<div v-if="action === 'sale'" class="mb-4 w-full max-w-md">
+			<div v-if="action === 'sale'">
 				<div class="flex">
 					<input
 						id="monto"
@@ -101,6 +107,7 @@ const selectedFiat = ref('ARS')
 const selectedCrypto = ref(coins[0].sigla)
 const exchangeRate = ref(0)
 const allCoins = coins
+let timeout = null
 
 const showAlert = ref(false)
 const alertType = ref('error')
@@ -113,7 +120,11 @@ const validateAmount = () => {
 		convertedAmount.value = 0;
 	}
 	if (amount.value > 0 && selectedCrypto) {
-		updateConversion();
+		if (timeout) clearTimeout(timeout)
+
+		timeout = setTimeout(() => {
+			updateConversion()
+		}, 500)
 	}
 }
 
@@ -144,13 +155,14 @@ const updateConversion = async () => {
 };
 
 const confirmTransaction = async () => {
-	if (amount.value <= 0 || !selectedFiat.value || !selectedCrypto.value) {
+	if (amount.value <= 0 || !selectedCrypto.value) {
 		showAlert.value = true
 		alertType.value = 'error'
 		alertTitle.value = 'Error'
 		alertMessage.value = 'Por favor, ingresa un monto y selecciona una moneda.';
 		return;
 	}
+	
 	const transaction = {
 		user_id: store.state.user.username,
 		action: action.value === 'purchase' ? 'purchase' : 'sale',
