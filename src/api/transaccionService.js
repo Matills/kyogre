@@ -17,3 +17,12 @@ export const createTransaction = async (transaction) => {
     throw new Error('No se pudo realizar la transacción.');
   }
 };
+
+export const getTransactions = async (userId) => {
+  try {
+    const response = await apiClient.get(`/transactions?q={"user_id": "${userId}"}`)
+    return response.data;
+  } catch (error) {
+    throw new Error('No se pudo obtener los registros.');
+  }
+}

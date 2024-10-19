@@ -7,6 +7,7 @@
 					:class="['text-2xl font-bold mr-4', action === 'purchase' ? 'text-accent' : 'text-primary']">
 					Comprar
 			</button>
+			<span class="material-icons mr-4">cached</span>
 			<button 
 					@click="action = 'sale'; updateConversion()" 
 					:class="['text-2xl font-bold', action === 'sale' ? 'text-accent' : 'text-primary']">
@@ -150,7 +151,7 @@ const updateConversion = async () => {
 		alertTitle.value = 'Error'
 		alertType.value = 'error';
 		const cryptoName = getCoinName(selectedCrypto.value);
-		alertMessage.value = `No se pudo obtener la información de ${cryptoName}.`;
+		alertMessage.value = `Ocurrio un problema al obtener os datos de ${cryptoName}.`;
 	}
 };
 
@@ -159,7 +160,7 @@ const confirmTransaction = async () => {
 		showAlert.value = true
 		alertType.value = 'error'
 		alertTitle.value = 'Error'
-		alertMessage.value = 'Por favor, ingresa un monto y selecciona una moneda.';
+		alertMessage.value = 'Ingrese un monto.';
 		return;
 	}
 	
@@ -167,9 +168,9 @@ const confirmTransaction = async () => {
 		user_id: store.state.user.username,
 		action: action.value === 'purchase' ? 'purchase' : 'sale',
 		crypto_code: selectedCrypto.value.toLowerCase(),
-		crypto_amount: convertedAmount.value,
-		money: amount.value.toString(),
-		datetime: formatDate(new Date())
+		crypto_amount: action.value === 'purchase' ? convertedAmount.value : amount.value.toString(),
+		money: action.value === 'purchase' ? amount.value.toString() : convertedAmount.value,
+		datetime: formatDate('YYYY-MM-DD HH:MM',new Date())
 	}
 
 	try {
@@ -182,7 +183,7 @@ const confirmTransaction = async () => {
 		showAlert.value = true;
 		alertType.value = 'error';
 		alertTitle.value = 'Error';
-		alertMessage.value = error.message || 'No se pudo realizar la transacción.';
+		alertMessage.value = `Ocurrio un problema al realizar la ${action.value === 'purchase' ? 'compra' : 'venta'}.`;
 	}
 }
 
