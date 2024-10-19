@@ -85,6 +85,10 @@ const fetchTransactions = async () => {
     alertType.value = 'error'
     alertTitle.value = 'Error'
     alertMessage.value = 'Ocurrió un problema al obtener los registros.'
+    
+    setTimeout(() => {
+      showAlert.value = false
+    }, 3000)
   } finally {
     loading.value = false
   }

@@ -111,7 +111,7 @@ const exchangeRate = ref(0)
 const allCoins = coins
 let timeout = null
 
-const showAlert = ref(true)
+const showAlert = ref(false)
 const alertType = ref('error')
 const alertTitle = ref('')
 const alertMessage = ref('')
@@ -153,6 +153,9 @@ const updateConversion = async () => {
 		alertType.value = 'error';
 		const cryptoName = getCoinName(selectedCrypto.value);
 		alertMessage.value = `Ocurrio un problema al obtener os datos de ${cryptoName}.`;
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 	}
 };
 
@@ -162,6 +165,9 @@ const confirmTransaction = async () => {
 		alertType.value = 'error'
 		alertTitle.value = 'Error'
 		alertMessage.value = 'Ingrese un monto.';
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 		return;
 	}
 	
@@ -180,11 +186,17 @@ const confirmTransaction = async () => {
 		alertType.value = 'success';
 		alertTitle.value = 'Exito';
 		alertMessage.value = 'La transacción se realizó con éxito.';
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 	} catch (error) {
 		showAlert.value = true;
 		alertType.value = 'error';
 		alertTitle.value = 'Error';
 		alertMessage.value = `Ocurrio un problema al realizar la ${action.value === 'purchase' ? 'compra' : 'venta'}.`;
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 	}
 }
 
