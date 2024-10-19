@@ -10,10 +10,10 @@
       <table v-if="transactions.length > 0" class="w-full text-left table-auto">
         <thead class="bg-secondary text-white">
           <tr>
-            <th class="px-4 py-2">Fecha</th>
-            <th class="px-4 py-2">Descripción</th>
-            <th class="px-4 py-2">Monto</th>
-            <th class="px-4 py-2"></th>
+            <th class="px-4 py-2 w-[10%]">Fecha</th>
+            <th class="px-4 py-2 ">Descripción</th>
+            <th class="px-4 py-2 w-[13%]">Monto</th>
+            <th class="px-4 py-2 w-[10%]"></th>
           </tr>
         </thead>
         <tbody>
@@ -29,9 +29,9 @@
               <br />
               <span class="text-gray-400">{{ transaction.crypto_amount }} {{ transaction.crypto_code.toUpperCase() }}</span>
             </td>
-            <td class="px-4 py-2 flex space-x-2">
-              <span class="material-icons text-orange-600 cursor-pointer">edit_note</span>
-              <span class="material-icons text-red-600 cursor-pointer">delete_sweep</span>
+            <td class="px-4 py-2">
+              <span class="material-symbols-outlined text-[#E2C734] cursor-pointer">edit_note</span>
+              <span class="material-symbols-outlined text-[#D76565] cursor-pointer">delete</span>
             </td>
           </tr>
         </tbody>
@@ -54,11 +54,12 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { getTransactions } from '@/api/transaccionService'
+import { useRouter } from 'vue-router'
+import { getTransactions, deleteTransaction } from '@/api/transaccionService'
 import { useStore } from 'vuex'
 import { formatDate } from '@/helpers/parsers'
 import coins from '@/data/coins.js'
-import AlertModal from '@/components/AlertModal.vue'
+import AlertModal from '@/components/Alert.vue'
 import Spinner from '@/components/Spinner.vue'
 
 const store = useStore()
@@ -83,7 +84,7 @@ const fetchTransactions = async () => {
     showAlert.value = true
     alertType.value = 'error'
     alertTitle.value = 'Error'
-    alertMessage.value = 'Ocurrio un problema al obtener los registros.'
+    alertMessage.value = 'Ocurrió un problema al obtener los registros.'
   } finally {
     loading.value = false
   }
@@ -111,5 +112,11 @@ onMounted(() => {
 .custom-scrollbar::-webkit-scrollbar-track {
   background-color: #1A202C;
   border-radius: 10px;
+}
+thead th {
+  position: sticky;
+  top: 0;
+  background-color: rgb(120, 113, 170);
+  z-index: 10;
 }
 </style>

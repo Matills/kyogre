@@ -7,7 +7,7 @@
 					:class="['text-2xl font-bold mr-4', action === 'purchase' ? 'text-accent' : 'text-primary']">
 					Comprar
 			</button>
-			<span class="material-icons mr-4">cached</span>
+			<span class="material-symbols-outlined mr-4">cached</span>
 			<button 
 					@click="action = 'sale'; updateConversion()" 
 					:class="['text-2xl font-bold', action === 'sale' ? 'text-accent' : 'text-primary']">
@@ -87,7 +87,7 @@
 				:visible="showAlert"
 				@close="showAlert = false"
 				position="right-top"
-			/>
+		/>
 	</div>
 </template>
   
@@ -96,7 +96,8 @@ import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { getCripto } from '@/api/criptoService'
 import { createTransaction } from '@/api/transaccionService'
-import AlertModal from '@/components/AlertModal.vue'
+import AlertModal from '@/components/Alert.vue'
+import Modal from '@/components/Modal.vue'
 import coins from '@/data/coins.js'
 import { formatDate } from '@/helpers/parsers'
 
@@ -110,7 +111,7 @@ const exchangeRate = ref(0)
 const allCoins = coins
 let timeout = null
 
-const showAlert = ref(false)
+const showAlert = ref(true)
 const alertType = ref('error')
 const alertTitle = ref('')
 const alertMessage = ref('')
