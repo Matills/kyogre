@@ -7,6 +7,7 @@
 					:class="['text-2xl font-bold mr-4', action === 'purchase' ? 'text-accent' : 'text-primary']">
 					Comprar
 			</button>
+			<span class="material-symbols-outlined mr-4">cached</span>
 			<button 
 					@click="action = 'sale'; updateConversion()" 
 					:class="['text-2xl font-bold', action === 'sale' ? 'text-accent' : 'text-primary']">
@@ -86,7 +87,7 @@
 				:visible="showAlert"
 				@close="showAlert = false"
 				position="right-top"
-			/>
+		/>
 	</div>
 </template>
   
@@ -95,7 +96,8 @@ import { ref, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { getCripto } from '@/api/criptoService'
 import { createTransaction } from '@/api/transaccionService'
-import AlertModal from '@/components/AlertModal.vue'
+import AlertModal from '@/components/Alert.vue'
+import Modal from '@/components/Modal.vue'
 import coins from '@/data/coins.js'
 import { formatDate } from '@/helpers/parsers'
 
@@ -150,7 +152,10 @@ const updateConversion = async () => {
 		alertTitle.value = 'Error'
 		alertType.value = 'error';
 		const cryptoName = getCoinName(selectedCrypto.value);
-		alertMessage.value = `No se pudo obtener la información de ${cryptoName}.`;
+		alertMessage.value = `Ocurrio un problema al obtener os datos de ${cryptoName}.`;
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 	}
 };
 
@@ -159,7 +164,10 @@ const confirmTransaction = async () => {
 		showAlert.value = true
 		alertType.value = 'error'
 		alertTitle.value = 'Error'
-		alertMessage.value = 'Por favor, ingresa un monto y selecciona una moneda.';
+		alertMessage.value = 'Ingrese un monto.';
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 		return;
 	}
 	
@@ -167,9 +175,9 @@ const confirmTransaction = async () => {
 		user_id: store.state.user.username,
 		action: action.value === 'purchase' ? 'purchase' : 'sale',
 		crypto_code: selectedCrypto.value.toLowerCase(),
-		crypto_amount: convertedAmount.value,
-		money: amount.value.toString(),
-		datetime: formatDate(new Date())
+		crypto_amount: action.value === 'purchase' ? convertedAmount.value : amount.value.toString(),
+		money: action.value === 'purchase' ? amount.value.toString() : convertedAmount.value,
+		datetime: formatDate('YYYY-MM-DD HH:MM',new Date())
 	}
 
 	try {
@@ -178,11 +186,17 @@ const confirmTransaction = async () => {
 		alertType.value = 'success';
 		alertTitle.value = 'Exito';
 		alertMessage.value = 'La transacción se realizó con éxito.';
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 	} catch (error) {
 		showAlert.value = true;
 		alertType.value = 'error';
 		alertTitle.value = 'Error';
-		alertMessage.value = error.message || 'No se pudo realizar la transacción.';
+		alertMessage.value = `Ocurrio un problema al realizar la ${action.value === 'purchase' ? 'compra' : 'venta'}.`;
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
 	}
 }
 

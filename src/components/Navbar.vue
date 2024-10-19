@@ -6,7 +6,7 @@
     </div>
 
     <div class="flex items-center mb-4">
-      <span class="material-icons text-primary">account_circle</span>
+      <span class="material-symbols-outlined  text-primary">account_circle</span>
       <span class="ml-2 text-sm font-semibold text-primary">{{ username }}</span>
     </div>
 
@@ -63,8 +63,6 @@ const goHome = () => {
 const links = [
   { name: 'Comprar / Vender', route: '/trading' },
   { name: 'Historial de movimientos', route: '/history' },
-  { name: 'Lectura, edición y borrado', route: '/edit-delete' },
-  { name: 'Análisis del estado actual', route: '/current-analysis' },
   { name: 'Análisis de inversiones', route: '/investment-analysis' },
   { name: 'Cerrar sesión', route: '/login' },
 ];

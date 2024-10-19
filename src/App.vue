@@ -17,5 +17,5 @@ const isAuthenticated = computed(() => !!store.state.user);
 </script>
 
 <style>
-@import url('https://fonts.googleapis.com/icon?family=Material+Icons');
+@import url('https://fonts.googleapis.com/icon?family=Material+Symbols+Outlined');
 </style>
