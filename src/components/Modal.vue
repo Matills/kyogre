@@ -46,9 +46,9 @@ export default {
       },
       alert: {
         icon: 'warning',
-        color: 'text-[#d1b204]',
-        border: 'border-[#d1b204]',
-        bg: 'bg-[#d1b204]'
+        color: 'text-[#D1B204]',
+        border: 'border-[#D1B204]',
+        bg: 'bg-[#D1B204]'
       },
       info: {
         icon: 'info',

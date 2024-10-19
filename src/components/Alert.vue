@@ -81,7 +81,7 @@ const icon = computed(() => icons[props.type] || '');
 const styles = {
   success: 'bg-[#73B474] text-white',
   error: 'bg-[#D76565] text-white',
-  alert: 'bg-[#E2C734] text-white',
+  alert: 'bg-[#D1B204] text-white',
   info: 'bg-[#0DA99E] text-white',
   loading: 'bg-[#48C9C0] text-white',
 };
