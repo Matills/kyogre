@@ -1,10 +1,10 @@
 import axios from 'axios';
 
 const apiClient = axios.create({
-  baseURL: 'https://laboratorio3-5fc7.restdb.io/rest/',
+  baseURL: 'https://laboratorio3-f36a.restdb.io/rest/',
   withCredentials: false,
   headers:{
-    'x-apikey': '64bdbc3386d8c5613ded91e7',
+    'x-apikey': '60eb09146661365596af552f',
     'Content-Type':  'application/json'
   },
 })
@@ -24,6 +24,15 @@ export const getTransactions = async (userId) => {
     return response.data;
   } catch (error) {
     throw new Error('No se pudo obtener los registros.');
+  }
+}
+
+export const getTransaction = async (idTransaction) => {
+  try {
+    const response = await apiClient.get(`/transactions/${idTransaction}`)
+    return response.data;
+  } catch (error) {
+    throw new Error('No se pudo obtener el registro.');
   }
 }
 
