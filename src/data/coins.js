@@ -1,4 +1,3 @@
-// src/data/coins.js
 const coins = [
     { sigla: 'BTC', nombre: 'Bitcoin' },
     { sigla: 'ETH', nombre: 'Ethereum' },

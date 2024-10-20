@@ -26,6 +26,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/edit/:idTransaction',
+    name: 'edit',
+    component: () => import('../views/Edit.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     name: 'not-found',
     redirect: () => {

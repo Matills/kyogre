@@ -11,9 +11,9 @@
         <thead class="bg-secondary text-white">
           <tr>
             <th class="px-4 py-2 w-[10%]">Fecha</th>
-            <th class="px-4 py-2 ">Descripción</th>
-            <th class="px-4 py-2 w-[13%]">Monto</th>
-            <th class="px-4 py-2 w-[10%]"></th>
+            <th class="px-4 py-2">Descripción</th>
+            <th class="px-4 py-2 w-[15%]">Monto</th>
+            <th class="px-4 py-2 w-[8%]"></th>
           </tr>
         </thead>
         <tbody>
@@ -30,8 +30,8 @@
               <span class="text-gray-400">{{ transaction.crypto_amount }} {{ transaction.crypto_code.toUpperCase() }}</span>
             </td>
             <td class="px-4 py-2">
-              <span class="material-symbols-outlined text-[#E2C734] cursor-pointer">edit_note</span>
-              <span class="material-symbols-outlined text-[#D76565] cursor-pointer">delete</span>
+              <span @click="editTransaction(transaction._id)" class="material-symbols-outlined text-[#E2C734] cursor-pointer">edit_note</span>
+              <span @click="openConfirmModal(transaction._id)" class="material-symbols-outlined text-[#D76565] cursor-pointer">delete</span>
             </td>
           </tr>
         </tbody>
@@ -49,6 +49,17 @@
       @close="showAlert = false"
       position="right-top"
     />
+
+    <ConfirmModal
+      v-if="showModal"
+      :type="'alert'"
+      :title="'Eliminar Transacción'"
+      :message="'¿Estás seguro de que deseas eliminar este registro?'"
+      :botonConfirm="'Eliminar'"
+      :botonCancel="'Cancelar'"
+      @confirm="confirmDelete"
+      @cancel="closeConfirmModal"
+    />
   </div>
 </template>
 
@@ -60,8 +71,10 @@ import { useStore } from 'vuex'
 import { formatDate } from '@/helpers/parsers'
 import coins from '@/data/coins.js'
 import AlertModal from '@/components/Alert.vue'
+import ConfirmModal from '@/components/Modal.vue'
 import Spinner from '@/components/Spinner.vue'
 
+const router = useRouter()
 const store = useStore()
 const transactions = ref([])
 const showAlert = ref(false)
@@ -69,6 +82,8 @@ const alertType = ref('error')
 const alertTitle = ref('')
 const alertMessage = ref('')
 const loading = ref(true)
+const selectedTransactionId = ref(null)
+const showModal = ref(false)
 
 const getCoinName = (crypto_code) => {
   const coin = coins.find(c => c.sigla.toLowerCase() === crypto_code.toLowerCase())
@@ -91,6 +106,41 @@ const fetchTransactions = async () => {
     }, 3000)
   } finally {
     loading.value = false
+  }
+}
+
+const editTransaction = (idTransaction) => {
+  router.push(`/edit/${idTransaction}`)
+}
+
+const openConfirmModal = (idTransaction) => {
+  selectedTransactionId.value = idTransaction
+  showModal.value = true
+}
+
+const closeConfirmModal = () => {
+  showModal.value = false
+}
+
+const confirmDelete = async () => {
+  try {
+    await deleteTransaction(selectedTransactionId.value)
+    transactions.value = transactions.value.filter(t => t._id !== selectedTransactionId.value)
+    showAlert.value = true
+    alertType.value = 'sucess'
+    alertTitle.value = 'Exito'
+    alertMessage.value = 'Se elimino correctamente el registro.'
+    setTimeout(() => {
+      showAlert.value = false
+    }, 3000)
+  } catch (error) {
+    showAlert.value = true
+    alertType.value = 'error'
+    alertTitle.value = 'Error'
+    alertMessage.value = 'No se pudo eliminar el registro.'
+    setTimeout(() => {
+      showAlert.value = false
+    }, 3000)
   }
 }
 
