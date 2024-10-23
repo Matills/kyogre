@@ -1,5 +1,5 @@
 <template>
-	<div class="min-h-screen flex flex-col items-start justify-start bg-secondary text-white pt-4 pl-4">
+	<div class="min-h-screen flex flex-col items-start justify-start bg-background text-white pt-4 pl-4">
 		<div class="flex items-center mb-4">
 			<h1 class="text-2xl font-bold mr-2">Seleccione:</h1>
 			<button 
@@ -75,7 +75,7 @@
 			</div>
 		</div>
 		<p class="mb-6 text-white">Tasa de cambio: 1 {{ selectedCrypto }} = {{ exchangeRate }} {{ selectedFiat }}</p>
-		<button @click="confirmTransaction" class="bg-accent text-white py-2 px-4 rounded-lg hover:bg-green-600 transition-colors">
+		<button @click="confirmTransaction" class="bg-accent text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors">
 			Confirmar {{ action === 'purchase' ? 'Compra' : 'Venta' }}
 		</button>
 

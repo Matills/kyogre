@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex items-center justify-center bg-secondary">
+  <div class="min-h-screen flex items-center justify-center bg-background">
     <div class="bg-white p-8 rounded-lg shadow-lg w-96">
       <div class="flex items-center mb-8">
         <img src="@/assets/logo.svg" alt="Kyogre Logo" class="w-16 mr-2" />
@@ -10,7 +10,7 @@
 
       <form @submit.prevent="isLogin ? handleLogin() : handleRegister()">
         <div class="mb-4">
-          <label for="username" class="block text-secondary mb-2">Username</label>
+          <label for="username" class="block text-background mb-2">Username</label>
           <input 
             v-model="username" 
             type="text" 
@@ -24,7 +24,7 @@
         </div>
 
         <div v-if="!isLogin" class="mb-4">
-          <label for="email" class="block text-secondary mb-2">Email</label>
+          <label for="email" class="block text-background mb-2">Email</label>
           <input 
             v-model="email" 
             type="email" 
@@ -38,7 +38,7 @@
         </div>
 
         <div class="mb-4">
-          <label for="password" class="block text-secondary mb-2">Password</label>
+          <label for="password" class="block text-background mb-2">Password</label>
           <input 
             v-model="password" 
             type="password" 
@@ -52,7 +52,7 @@
         </div>
 
         <div v-if="!isLogin" class="mb-4">
-          <label for="confirmPassword" class="block text-secondary mb-2">Confirm Password</label>
+          <label for="confirmPassword" class="block text-background mb-2">Confirm Password</label>
           <input 
             v-model="confirmPassword" 
             type="password" 
@@ -73,7 +73,7 @@
         </button>
       </form>
 
-      <p class="text-center text-secondary mt-4">
+      <p class="text-center text-background mt-4">
         <button @click="toggleLogin" class="text-accent underline">
           {{ isLogin ? 'Crear cuenta' : 'Ya tienes una cuenta? Iniciar sesión' }}
         </button>

@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-start justify-start bg-secondary text-white p-4">
+  <div class="min-h-screen flex flex-col items-start justify-start bg-background text-white p-4">
     <h1 class="text-2xl font-bold text-primary mb-6">Historial de movimientos</h1>
 
     <div v-if="loading" class="flex items-center justify-center min-w-full min-h-[500px]">
@@ -8,7 +8,7 @@
 
     <div v-if="!loading" class="w-full max-h-[500px] overflow-y-auto custom-scrollbar">
       <table v-if="transactions.length > 0" class="w-full text-left table-auto">
-        <thead class="bg-secondary text-white">
+        <thead class="bg-background text-white">
           <tr>
             <th class="px-4 py-2 w-[10%]">Fecha</th>
             <th class="px-4 py-2">Descripción</th>

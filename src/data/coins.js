@@ -4,7 +4,6 @@ const coins = [
     { sigla: 'USDT', nombre: 'Tether' },
     { sigla: 'USDC', nombre: 'USD Coin' },
     { sigla: 'DAI', nombre: 'Dai' },
-    { sigla: 'UXD', nombre: 'UXD' },
     { sigla: 'USDP', nombre: 'Pax Dollar' },
     { sigla: 'WLD', nombre: 'Worldcoin' },
     { sigla: 'BNB', nombre: 'Binance Coin' },
