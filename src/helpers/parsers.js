@@ -12,3 +12,10 @@ export function formatDate(tipo,date) {
             return date.toString()
     }
 }
+
+export function formatPrice(value, currency = 'ARS') {
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: currency,
+    }).format(value)
+}

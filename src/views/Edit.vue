@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col items-start justify-start bg-secondary text-white p-4">
+  <div class="min-h-screen flex flex-col items-start justify-start bg-background text-white p-4">
     <h1 class="text-2xl font-bold text-primary mb-6">Editar Transacción</h1>
     
     <div v-if="loading" class="flex items-center justify-center min-w-full min-h-[500px]">
@@ -41,7 +41,7 @@
 
         <div class="flex">
           <button @click="updateTransactionData" class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-accent transition-colors mr-2">Actualizar</button>
-          <button @click="openConfirmModal" class="bg-[#D76565] text-white py-2 px-4 rounded-lg">Eliminar Registro</button>
+          <button @click="openConfirmModal" class="bg-[#D76565] w-full text-white py-2 px-4 rounded-lg">Eliminar Registro</button>
         </div>
       </div>
     </div>

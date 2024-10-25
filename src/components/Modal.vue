@@ -8,7 +8,7 @@
                 </div>
                 <p class="text-black mb-6">{{ message }}</p>
                 <div class="flex justify-end items-center">
-                    <button @click="cancel" class="px-4 py-2 mr-4 border border-black text-black rounded">{{ botonCancel }}</button>
+                    <button @click="cancel" class="px-4 py-2 mr-4 border border-gray-400 text-black rounded">{{ botonCancel }}</button>
                     <button @click="confirm" :class="`${btnColor} px-4 py-2 rounded text-white`">{{ botonConfirm }}</button>
                 </div>
             </div>
