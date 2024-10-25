@@ -75,7 +75,7 @@
 			</div>
 		</div>
 		<p class="mb-6 text-white">Tasa de cambio: 1 {{ selectedCrypto }} = {{ exchangeRate }} {{ selectedFiat }}</p>
-		<button @click="confirmTransaction" class="bg-accent text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors">
+		<button @click="confirmTransaction" class="bg-secondary text-white py-2 px-4 rounded-lg hover:bg-accent transition-colors">
 			Confirmar {{ action === 'purchase' ? 'Compra' : 'Venta' }}
 		</button>
 

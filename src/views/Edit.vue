@@ -40,8 +40,8 @@
         </div>
 
         <div class="flex">
-          <button @click="updateTransactionData" class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-secondary transition-colors mr-2">Actualizar</button>
-          <button @click="openConfirmModal" class="bg-[#D76565] text-white py-2 px-4 rounded-lg">Eliminar Registro</button>
+          <button @click="updateTransactionData" class="bg-primary text-white py-2 px-4 rounded-lg hover:bg-accent transition-colors mr-2">Actualizar</button>
+          <button @click="openConfirmModal" class="bg-[#D76565] w-full text-white py-2 px-4 rounded-lg">Eliminar Registro</button>
         </div>
       </div>
     </div>
