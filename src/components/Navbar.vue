@@ -63,7 +63,7 @@ const goHome = () => {
 const links = [
   { name: 'Comprar / Vender', route: '/trading' },
   { name: 'Historial de movimientos', route: '/history' },
-  { name: 'Análisis de inversiones', route: '/investment-analysis' },
+  { name: 'Análisis de inversiones', route: '/investment' },
   { name: 'Cerrar sesión', route: '/login' },
 ];
 
