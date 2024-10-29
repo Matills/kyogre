@@ -17,19 +17,8 @@
 
 		<div class="mb-4 w-full max-w-md">
 			<label for="monto" class="block text-white mb-2">
-				De {{ action === 'purchase' ? 'Pesos Argentinos' : getCoinName(selectedCrypto)  }}
+				De {{ action === 'purchase' ? 'Pesos Argentinos' : getCoinName(selectedCrypto) }}
 			</label>
-			<div class="flex">
-					<input
-						v-if="action === 'purchase'"
-						id="monto"
-						v-model.number="amount"
-						@input="validateAmount"
-						type="number"
-						min="0"
-						class="p-2 w-full bg-white text-black rounded-lg"
-					/>
-			</div>
 			<div v-if="action === 'sale'">
 				<div class="flex">
 					<input
@@ -44,6 +33,19 @@
 						<option v-for="coin in allCoins" :key="coin.sigla" :value="coin.sigla">{{ coin.sigla }}</option>
 					</select>
 				</div>
+				<p class="text-gray-400 mt-2">Balance disponible: {{ getBalance(selectedCrypto) }} {{ selectedCrypto }}</p>
+			</div>
+			<div v-else class="flex flex-col">
+				<input
+					v-if="action === 'purchase'"
+					id="monto"
+					v-model.number="amount"
+					@input="validateAmount"
+					type="number"
+					min="0"
+					class="p-2 w-full bg-white text-black rounded-lg"
+				/>
+				<p class="text-gray-400 mt-2">Balance disponible: {{ getBalance('ars') }} ARS</p>
 			</div>
 		</div>
 
@@ -52,26 +54,28 @@
 				De {{ action === 'purchase' ? getCoinName(selectedCrypto) : 'Pesos Argentinos' }}
 			</label>
 			<div class="flex">
-				<div v-if="action === 'purchase'" class="flex w-full">
+				<div v-if="action === 'purchase'" class="flex flex w-full">
 					<input
 						id="conversion"
 						v-model="convertedAmount"
 						type="number"
 						disabled
 						class="p-2 w-full bg-white text-black rounded-l-lg"
-						/>
-						<select v-model="selectedCrypto" @change="updateConversion" class="p-2 bg-white text-black rounded-r-lg">
-							<option v-for="coin in allCoins" :key="coin.sigla" :value="coin.sigla">{{ coin.sigla }}</option>
-						</select>
+					/>
+					<select v-model="selectedCrypto" @change="updateConversion" class="p-2 bg-white text-black rounded-r-lg">
+						<option v-for="coin in allCoins" :key="coin.sigla" :value="coin.sigla">{{ coin.sigla }}</option>
+					</select>
 				</div>
-				<input
-					v-if="action === 'sale'"
-					id="conversion"
-					v-model="convertedAmount"
-					type="number"
-					disabled
-					class="p-2 w-full bg-white text-black rounded-lg"
-				/>
+				<div v-else class="w-full">
+					<input
+						v-if="action === 'sale'"
+						id="conversion"
+						v-model="convertedAmount"
+						type="number"
+						disabled
+						class="p-2 w-full bg-white text-black rounded-lg"
+					/>
+				</div>
 			</div>
 		</div>
 		<p class="mb-6 text-white">Tasa de cambio: 1 {{ selectedCrypto }} = {{ exchangeRate }} {{ selectedFiat }}</p>
@@ -92,7 +96,7 @@
 </template>
   
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { getCripto } from '@/api/criptoService'
 import { createTransaction } from '@/api/transaccionService'
@@ -116,10 +120,16 @@ const alertType = ref('error')
 const alertTitle = ref('')
 const alertMessage = ref('')
 
+const getBalance = (cryptoCode) => computed(() => {
+  const wallet = store.getters.getWallet
+  const asset = wallet.find(item => item.crypto_code === cryptoCode.toLowerCase())
+  return asset ? asset.crypto_amount : 0
+})
+
 const validateAmount = () => {
 	if (amount.value < 0) {
-		amount.value = 0;
-		convertedAmount.value = 0;
+		amount.value = 0
+		convertedAmount.value = 0
 	}
 	if (amount.value > 0 && selectedCrypto) {
 		if (timeout) clearTimeout(timeout)
@@ -170,21 +180,42 @@ const confirmTransaction = async () => {
 		}, 3000)
 		return;
 	}
-	
+	const availableBalance = action.value === 'purchase' ? getBalance('ars').value : getBalance(selectedCrypto.value).value;
+
+	if (action.value === 'purchase' && amount.value > availableBalance) {
+		showAlert.value = true
+		alertType.value = 'error'
+		alertTitle.value = 'Error'
+		alertMessage.value = 'Saldo insuficiente para realizar la compra.';
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
+		return;
+	} else if (action.value === 'sale' && convertedAmount.value > availableBalance) {
+		showAlert.value = true
+		alertType.value = 'error'
+		alertTitle.value = 'Error'
+		alertMessage.value = 'Saldo insuficiente para realizar la venta.';
+		setTimeout(() => {
+			showAlert.value = false
+		}, 3000)
+		return;
+	}
+
 	const transaction = {
 		user_id: store.state.user.username,
 		action: action.value === 'purchase' ? 'purchase' : 'sale',
 		crypto_code: selectedCrypto.value.toLowerCase(),
 		crypto_amount: action.value === 'purchase' ? convertedAmount.value : amount.value.toString(),
 		money: action.value === 'purchase' ? amount.value.toString() : convertedAmount.value,
-		datetime: formatDate('YYYY-MM-DD HH:MM',new Date())
+		datetime: formatDate('YYYY-MM-DD HH:MM', new Date())
 	}
 
 	try {
 		await createTransaction(transaction);
 		showAlert.value = true;
 		alertType.value = 'success';
-		alertTitle.value = 'Exito';
+		alertTitle.value = 'Éxito';
 		alertMessage.value = 'La transacción se realizó con éxito.';
 		setTimeout(() => {
 			showAlert.value = false
@@ -193,7 +224,7 @@ const confirmTransaction = async () => {
 		showAlert.value = true;
 		alertType.value = 'error';
 		alertTitle.value = 'Error';
-		alertMessage.value = `Ocurrio un problema al realizar la ${action.value === 'purchase' ? 'compra' : 'venta'}.`;
+		alertMessage.value = `Ocurrió un problema al realizar la ${action.value === 'purchase' ? 'compra' : 'venta'}.`;
 		setTimeout(() => {
 			showAlert.value = false
 		}, 3000)
