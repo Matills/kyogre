@@ -40,7 +40,7 @@
                 <div v-if="coin.crypto_code !== 'ars'">{{ coin.crypto_amount }} {{ coin.crypto_code.toUpperCase() }}</div>
                 <div>{{ formatPrice(coin.balanceARS) }} ARS</div>
               </td>
-              <td class="px-4 py-2 flex text-center items-center justify-end">
+              <td class="px-4 py-2 flex text-center items-center justify-end h-full">
                 <span class="text-white cursor-pointer hover:text-accent hover:translate-y-[-2px] transition-all mr-4" @click="coin.crypto_code == 'ars' ? openDepositModal() : openDepositCriptoModal()">
                   Depositar
                 </span>
@@ -129,51 +129,62 @@ const fetchWalletData = async () => {
     const userId = store.state.user.username
     const transactions = await getTransactions(userId)
     const walletMap = {}
-    const pricePromises = transactions
-      .filter(transaction => transaction.crypto_code !== 'ars')
-      .map(transaction => getCripto(transaction.crypto_code))
-
-    const priceDataArray = await Promise.all(pricePromises)
-    const priceMap = {}
-
-    priceDataArray.forEach((priceData, index) => {
-      const cryptoCode = transactions[index].crypto_code
-      if (cryptoCode !== 'ars') {
-        priceMap[cryptoCode] = parseFloat(priceData.bid)
-      }
-    })
+    let arsAmount = 0
 
     transactions.forEach(transaction => {
-      const price = priceMap[transaction.crypto_code] || 0
+      const { crypto_code, crypto_amount, money, action } = transaction
+      const amount = parseFloat(crypto_amount)
+      const transactionMoney = parseFloat(money)
 
-      if (transaction.crypto_code === 'ars') {
+      if (crypto_code === 'ars') {
+        arsAmount += transactionMoney
         if (!walletMap['ars']) {
           walletMap['ars'] = {
             crypto_code: 'ars',
-            crypto_amount: parseFloat(transaction.crypto_amount),
+            crypto_amount: 0,
+            money: arsAmount,
             price: 1,
-            balanceARS: parseFloat(transaction.crypto_amount),
+            balanceARS: arsAmount
           }
-        } else {
-          walletMap['ars'].crypto_amount += parseFloat(transaction.crypto_amount)
-          walletMap['ars'].balanceARS += parseFloat(transaction.crypto_amount)
         }
       } else {
-        if (!walletMap[transaction.crypto_code]) {
-          walletMap[transaction.crypto_code] = {
-            crypto_code: transaction.crypto_code,
-            crypto_amount: parseFloat(transaction.crypto_amount),
-            price: price,
-            balanceARS: parseFloat(transaction.crypto_amount) * price,
+        if (!walletMap[crypto_code]) {
+          walletMap[crypto_code] = {
+            crypto_code,
+            crypto_amount: 0,
+            money: 0,
+            price: 0,
+            balanceARS: 0,
           }
-        } else {
-          walletMap[transaction.crypto_code].crypto_amount += parseFloat(transaction.crypto_amount)
-          walletMap[transaction.crypto_code].balanceARS = walletMap[transaction.crypto_code].crypto_amount * price
+        }
+        
+        if (action === 'purchase') {
+          walletMap[crypto_code].crypto_amount += amount
+          arsAmount -= transactionMoney
+        } else if (action === 'sale') {
+          walletMap[crypto_code].crypto_amount -= amount
+          arsAmount += transactionMoney
         }
       }
     })
-    
-    store.commit('setWallet', Object.values(walletMap))
+
+    walletMap['ars'].balanceARS = arsAmount
+    walletMap['ars'].money = arsAmount
+    walletMap['ars'].crypto_amount = arsAmount
+
+    const uniqueCryptoCodes = Object.keys(walletMap).filter(code => code !== 'ars')
+    const pricePromises = uniqueCryptoCodes.map(code => getCripto(code))
+    const priceDataArray = await Promise.all(pricePromises)
+
+    priceDataArray.forEach((priceData, index) => {
+      const cryptoCode = uniqueCryptoCodes[index]
+      const price = parseFloat(priceData.bid)
+      walletMap[cryptoCode].price = price
+      walletMap[cryptoCode].balanceARS = walletMap[cryptoCode].crypto_amount * price
+    })
+
+    const walletFiltered = Object.values(walletMap).filter(coin => coin.crypto_amount !== 0 || coin.crypto_code === 'ars')
+    store.commit('setWallet', walletFiltered)
     totalBalance.value = Object.values(walletMap).reduce((total, coin) => total + (coin.balanceARS || 0), 0)
   } catch (error) {
     showAlert.value = true
@@ -229,6 +240,7 @@ const confirmDeposit = async () => {
   }
 
   try {
+    closeDepositModal()
     await createTransaction(transaction)
     await fetchWalletData()
     showAlert.value = true
@@ -238,7 +250,6 @@ const confirmDeposit = async () => {
     setTimeout(() => {
       showAlert.value = false
     }, 3000)
-    closeDepositModal()
   } catch (error) {
     showAlert.value = true
     alertType.value = 'error'

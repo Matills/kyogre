@@ -191,7 +191,7 @@ const confirmTransaction = async () => {
 			showAlert.value = false
 		}, 3000)
 		return;
-	} else if (action.value === 'sale' && convertedAmount.value > availableBalance) {
+	} else if (action.value === 'sale' && selectedCrypto.value >= availableBalance) {
 		showAlert.value = true
 		alertType.value = 'error'
 		alertTitle.value = 'Error'
@@ -213,6 +213,11 @@ const confirmTransaction = async () => {
 
 	try {
 		await createTransaction(transaction);
+		store.commit('updateWallet', {
+			cryptoCode: selectedCrypto.value.toLowerCase(),
+			fiatAmount: amount.value,
+			cryptoAmount: convertedAmount.value
+		})
 		showAlert.value = true;
 		alertType.value = 'success';
 		alertTitle.value = 'Éxito';

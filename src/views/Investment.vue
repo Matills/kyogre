@@ -26,6 +26,16 @@
         </tbody>
       </table>
     </div>
+
+    <AlertModal
+      v-if="showAlert"
+      :type="alertType"
+      :title="alertTitle"
+      :message="alertMessage"
+      :visible="showAlert"
+      @close="showAlert = false"
+      position="right-top"
+    />
   </div>
 </template>
 
@@ -34,6 +44,7 @@ import { ref, onMounted } from 'vue'
 import { getTransactions } from '@/api/transaccionService'
 import { useStore } from 'vuex'
 import Spinner from '@/components/Spinner.vue'
+import AlertModal from '@/components/Alert.vue'
 import { getCripto } from '@/api/criptoService'
 
 const store = useStore()
@@ -41,6 +52,10 @@ const loading = ref(true)
 const transactions = ref([])
 const analysisResults = ref({})
 const quantities = ref({})
+const showAlert = ref(false)
+const alertType = ref('error')
+const alertTitle = ref('')
+const alertMessage = ref('')
 
 const fetchTransactions = async () => {
   try {
@@ -48,7 +63,13 @@ const fetchTransactions = async () => {
     const response = await getTransactions(userId)
     transactions.value = response
   } catch (error) {
-    console.error("Error al obtener las transacciones:", error)
+    showAlert.value = true
+    alertType.value = 'error'
+    alertTitle.value = 'Error'
+    alertMessage.value = 'Error al obtener transacciones'
+    setTimeout(() => {
+      showAlert.value = false
+    }, 3000)
   } finally {
     loading.value = false
   }
@@ -83,7 +104,13 @@ const calculateInvestmentResults = async () => {
       analysisResults.value[cryptoCode] = investmentResult
       quantities.value[cryptoCode] = totalAmount.toFixed(2)
     } catch (error) {
-      console.error(`Error al obtener el precio de ${cryptoCode}:`, error)
+      showAlert.value = true
+      alertType.value = 'error'
+      alertTitle.value = 'Error'
+      alertMessage.value = `Error al obtener el precio de ${cryptoCode}`
+      setTimeout(() => {
+        showAlert.value = false
+      }, 3000)
       analysisResults.value[cryptoCode] = "Error de precio"
       quantities.value[cryptoCode] = "N/A"
     }
