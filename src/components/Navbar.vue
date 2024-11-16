@@ -6,7 +6,7 @@
     </div>
 
     <div class="flex items-center mb-4">
-      <span class="material-symbols-outlined  text-primary">account_circle</span>
+      <span class="material-symbols-outlined text-primary">account_circle</span>
       <span class="ml-2 text-sm font-semibold text-primary">{{ username }}</span>
     </div>
 
@@ -29,11 +29,8 @@
         <span
           v-else
           @click="logout"
-          class="text-sm relative cursor-pointer transition-colors duration-300 ease-out hover:text-red-600"
-          :class="{
-            'text-red-600': isActive(link.route),
-            'text-primary': !isActive(link.route)
-          }"
+          class="text-sm text-red-600 relative cursor-pointer transition-colors duration-300 ease-out hover:text-red-700"
+          :class="{ 'text-red-700': hovered === link.name }"
           @mouseover="hover(link.name)"
           @mouseleave="hover('')"
         >
@@ -57,10 +54,11 @@ const hovered = ref('');
 const username = store.state.user?.username || 'Guest';
 
 const goHome = () => {
-  router.push('/home');
+  router.push('/');
 };
 
 const links = [
+  { name: 'Inicio', route: '/' },
   { name: 'Comprar / Vender', route: '/trading' },
   { name: 'Historial de movimientos', route: '/history' },
   { name: 'Análisis de inversiones', route: '/investment' },

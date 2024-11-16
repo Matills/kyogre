@@ -87,7 +87,7 @@ const showModal = ref(false)
 
 const getCoinName = (crypto_code) => {
   const coin = coins.find(c => c.sigla.toLowerCase() === crypto_code.toLowerCase())
-  return coin ? coin.nombre : crypto_code
+  return coin ? coin.nombre : "Pesos Argentinos"
 }
 
 const fetchTransactions = async () => {
@@ -123,11 +123,14 @@ const closeConfirmModal = () => {
 }
 
 const confirmDelete = async () => {
+  showModal.value = false;
   try {
+    const transaction = transactions.value.find(t => t._id === selectedTransactionId.value)
     await deleteTransaction(selectedTransactionId.value)
     transactions.value = transactions.value.filter(t => t._id !== selectedTransactionId.value)
+    store.commit('updateWallet', { cryptoCode: 'ars', fiatAmount: -transaction.money, cryptoAmount: 0 })
     showAlert.value = true
-    alertType.value = 'sucess'
+    alertType.value = 'success'
     alertTitle.value = 'Exito'
     alertMessage.value = 'Se elimino correctamente el registro.'
     setTimeout(() => {

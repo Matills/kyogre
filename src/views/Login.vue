@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex items-center justify-center bg-background">
-    <div class="bg-white p-8 rounded-lg shadow-lg w-96">
-      <div class="flex items-center mb-8">
+    <div class="bg-white p-4 rounded-lg shadow-lg w-96">
+      <div class="flex items-center mb-4">
         <img src="@/assets/logo.svg" alt="Kyogre Logo" class="w-16 mr-2" />
         <h1 class="text-primary text-2xl font-bold">Kyogre</h1>
       </div>
@@ -10,12 +10,11 @@
 
       <form @submit.prevent="isLogin ? handleLogin() : handleRegister()">
         <div class="mb-4">
-          <label for="username" class="block text-background mb-2">Username</label>
+          <label for="username" class="block text-background mb-2">Nombre de usuario</label>
           <input 
             v-model="username" 
             type="text" 
             id="username" 
-            placeholder="Enter your username" 
             class="w-full p-2 border border-gray-300 rounded-lg"
             :class="{ 'border-red-500': errors.username }"
             required
@@ -29,7 +28,6 @@
             v-model="email" 
             type="email" 
             id="email" 
-            placeholder="Enter your email" 
             class="w-full p-2 border border-gray-300 rounded-lg"
             :class="{ 'border-red-500': errors.email }"
             required
@@ -38,12 +36,11 @@
         </div>
 
         <div class="mb-4">
-          <label for="password" class="block text-background mb-2">Password</label>
+          <label for="password" class="block text-background mb-2">Contraseña</label>
           <input 
             v-model="password" 
             type="password" 
             id="password" 
-            placeholder="Enter your password" 
             class="w-full p-2 border border-gray-300 rounded-lg"
             :class="{ 'border-red-500': errors.password }"
             required
@@ -52,12 +49,11 @@
         </div>
 
         <div v-if="!isLogin" class="mb-4">
-          <label for="confirmPassword" class="block text-background mb-2">Confirm Password</label>
+          <label for="confirmPassword" class="block text-background mb-2">Confirmar Contraseña</label>
           <input 
             v-model="confirmPassword" 
             type="password" 
             id="confirmPassword" 
-            placeholder="Confirm your password" 
             class="w-full p-2 border border-gray-300 rounded-lg"
             :class="{ 'border-red-500': errors.confirmPassword }"
             required

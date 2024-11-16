@@ -35,12 +35,12 @@
           <tbody>
             <tr v-for="coin in sortedWallet" :key="coin.crypto_code" class="border-b border-gray-700">
               <td class="px-4 py-2">{{ getCoinName(coin.crypto_code) }}</td>
-              <td class="px-4 py-2">{{ formatPrice(coin.price) }}</td>
+              <td class="px-4 py-2">{{ coin.crypto_code !== 'ars' ? formatPrice(coin.price) : '' }}</td>
               <td class="px-4 py-2">
                 <div v-if="coin.crypto_code !== 'ars'">{{ coin.crypto_amount }} {{ coin.crypto_code.toUpperCase() }}</div>
-                <div v-if="coin.crypto_code !== 'ars'">{{ formatPrice(coin.balanceARS) }} ARS</div>
+                <div>{{ formatPrice(coin.balanceARS) }} ARS</div>
               </td>
-              <td class="px-4 py-2 flex text-center items-center justify-end">
+              <td class="px-4 py-2 flex text-center items-center justify-end h-full">
                 <span class="text-white cursor-pointer hover:text-accent hover:translate-y-[-2px] transition-all mr-4" @click="coin.crypto_code == 'ars' ? openDepositModal() : openDepositCriptoModal()">
                   Depositar
                 </span>
@@ -51,8 +51,6 @@
             </tr>
           </tbody>
         </table>
-
-        <p v-if="wallet.length === 0" class="text-gray-400 text-center">No tienes criptomonedas en tu billetera.</p>
       </div>
     </div>
 
@@ -97,8 +95,10 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue'
 import { useStore } from 'vuex'
-import { formatPrice } from '@/helpers/parsers'
+import { formatPrice, formatDate } from '@/helpers/parsers'
 import { useRouter } from 'vue-router'
+import { getCripto } from '@/api/criptoService'
+import { getTransactions, createTransaction } from '@/api/transaccionService'
 import coins from '@/data/coins.js'
 import AlertModal from '@/components/Alert.vue'
 import Spinner from '@/components/Spinner.vue'
@@ -124,9 +124,85 @@ const sortedWallet = computed(() => {
 const fetchWalletData = async () => {
   loading.value = true
   try {
-    await store.dispatch('fetchWalletData')
-    totalBalance.value = wallet.value.reduce((total, coin) => total + (coin.balanceARS || 0), 0)
+    const userId = store.state.user.username
+    const transactions = await getTransactions(userId)
+
+    if (!transactions || transactions.length === 0) {
+      const initialWallet = [
+        {
+          crypto_code: 'ars',
+          crypto_amount: 0,
+          money: 0,
+          price: 1,
+          balanceARS: 0,
+        }
+      ]
+      store.commit('setWallet', initialWallet)
+      totalBalance.value = 0
+      loading.value = false
+      return
+    }
+
+    const walletMap = {}
+    let arsAmount = 0
+
+    transactions.forEach(transaction => {
+      const { crypto_code, crypto_amount, money, action } = transaction
+      const amount = parseFloat(crypto_amount)
+      const transactionMoney = parseFloat(money)
+
+      if (crypto_code === 'ars') {
+        arsAmount += transactionMoney
+        if (!walletMap['ars']) {
+          walletMap['ars'] = {
+            crypto_code: 'ars',
+            crypto_amount: 0,
+            money: arsAmount,
+            price: 1,
+            balanceARS: arsAmount
+          }
+        }
+      } else {
+        if (!walletMap[crypto_code]) {
+          walletMap[crypto_code] = {
+            crypto_code,
+            crypto_amount: 0,
+            money: 0,
+            price: 0,
+            balanceARS: 0,
+          }
+        }
+        
+        if (action === 'purchase') {
+          walletMap[crypto_code].crypto_amount += amount
+          arsAmount -= transactionMoney
+        } else if (action === 'sale') {
+          walletMap[crypto_code].crypto_amount -= amount
+          arsAmount += transactionMoney
+        }
+      }
+    })
+
+    walletMap['ars'].balanceARS = arsAmount
+    walletMap['ars'].money = arsAmount
+    walletMap['ars'].crypto_amount = arsAmount
+
+    const uniqueCryptoCodes = Object.keys(walletMap).filter(code => code !== 'ars')
+    const pricePromises = uniqueCryptoCodes.map(code => getCripto(code))
+    const priceDataArray = await Promise.all(pricePromises)
+
+    priceDataArray.forEach((priceData, index) => {
+      const cryptoCode = uniqueCryptoCodes[index]
+      const price = parseFloat(priceData.bid)
+      walletMap[cryptoCode].price = price
+      walletMap[cryptoCode].balanceARS = walletMap[cryptoCode].crypto_amount * price
+    })
+
+    const walletFiltered = Object.values(walletMap).filter(coin => coin.crypto_amount !== 0 || coin.crypto_code === 'ars')
+    store.commit('setWallet', walletFiltered)
+    totalBalance.value = Object.values(walletMap).reduce((total, coin) => total + (coin.balanceARS || 0), 0)
   } catch (error) {
+    console.error(error)
     showAlert.value = true
     alertMessage.value = 'Error al cargar los datos de la billetera.'
     alertTitle.value = 'Error'
@@ -158,33 +234,47 @@ const closeDepositModal = () => {
   showDepositModal.value = false
 }
 
-const confirmDeposit = () => {
+const confirmDeposit = async () => {
   const amount = parseFloat(depositAmount.value)
-  if (isNaN(amount) || amount <= 0) {
-    alertMessage.value = "Ingresa un monto válido."
-    alertTitle.value = "Error"
-    alertType.value = "error"
+  if (amount <= 0) {
     showAlert.value = true
+    alertType.value = 'error'
+    alertTitle.value = 'Error'
+    alertMessage.value = 'Ingrese un monto válido.'
     setTimeout(() => {
       showAlert.value = false
     }, 3000)
     return
   }
-  const depositCrypto = {
-    balanceARS: amount,
-    crypto_amount: 0,
+  const transaction = {
+    user_id: store.state.user.username,
+    action: 'purchase',
     crypto_code: 'ars',
-    price: amount,
+    crypto_amount: amount.toString(),
+    money: amount.toString(),
+    datetime: formatDate('YYYY-MM-DD HH:MM', new Date())
   }
-  store.commit('addCrypto', depositCrypto)
-  alertMessage.value = "Depósito realizado con éxito."
-  alertTitle.value = "Éxito"
-  alertType.value = "success"
-  showAlert.value = true
-  setTimeout(() => {
-    showAlert.value = false
-  }, 3000)
-  closeDepositModal()
+
+  try {
+    closeDepositModal()
+    await createTransaction(transaction)
+    await fetchWalletData()
+    showAlert.value = true
+    alertType.value = 'success'
+    alertTitle.value = 'Éxito'
+    alertMessage.value = 'El depósito se realizó con éxito.'
+    setTimeout(() => {
+      showAlert.value = false
+    }, 3000)
+  } catch (error) {
+    showAlert.value = true
+    alertType.value = 'error'
+    alertTitle.value = 'Error'
+    alertMessage.value = 'Ocurrió un problema al realizar el depósito.'
+    setTimeout(() => {
+      showAlert.value = false
+    }, 3000)
+  }
 }
 
 const goToTrading = () => {

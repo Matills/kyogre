@@ -70,6 +70,7 @@
   
 <script setup>
 import { ref, onMounted } from 'vue'
+import { useStore } from 'vuex';
 import { useRoute, useRouter } from 'vue-router'
 import { getTransaction, updateTransaction, deleteTransaction } from '@/api/transaccionService'
 import AlertModal from '@/components/Alert.vue'
@@ -77,6 +78,7 @@ import ConfirmModal from '@/components/Modal.vue'
 import Spinner from '@/components/Spinner.vue'
 import coins from '@/data/coins.js'
 
+const store = useStore()
 const route = useRoute()
 const router = useRouter()
 const transaction = ref({
@@ -92,6 +94,7 @@ const alertTitle = ref('')
 const alertMessage = ref('')
 const allCoins = coins
 const showModal = ref(false)
+let originalCryptoAmout = 0;
 
 const fetchTransaction = async () => {
   try {
@@ -99,6 +102,7 @@ const fetchTransaction = async () => {
     const fetchedTransaction = await getTransaction(idTransaction)
     transaction.value = fetchedTransaction
     transaction.value.crypto_code = fetchedTransaction.crypto_code.toUpperCase()
+    originalCryptoAmout = transaction.value.crypto_amount
   } catch (error) {
     showAlert.value = true
     alertType.value = 'error'
@@ -123,11 +127,25 @@ const validatePositive = () => {
 
 const updateTransactionData = async () => {
   try {
+    transaction.value.crypto_code = transaction.value.crypto_code.toLowerCase()
     await updateTransaction(transaction.value._id, transaction.value)
+    //eliminar valor original del store
+    store.commit('updateWallet', {
+      cryptoCode: transaction.value.crypto_code,
+      fiatAmount: 0,
+      cryptoAmount: -originalCryptoAmout
+    })
+    //guarda valor nuevo en el store
+    store.commit('updateWallet', {
+      cryptoCode: transaction.value.crypto_code,
+      fiatAmount: 0,
+      cryptoAmount: transaction.value.crypto_amount 
+    })
     alertType.value = 'success'
     alertTitle.value = 'Éxito'
     alertMessage.value = 'Transacción actualizada correctamente.'
     showAlert.value = true
+    transaction.value.crypto_code = transaction.value.crypto_code.toUpperCase()
     setTimeout(() => {
         showAlert.value = false
     }, 3000)
@@ -152,7 +170,13 @@ const closeConfirmModal = () => {
 
 const confirmDelete = async () => {
   try {
+    transaction.value.crypto_code = transaction.value.crypto_code.toLowerCase()
     await deleteTransaction(transaction.value._id)
+    store.commit('updateWallet', {
+      cryptoCode: transaction.value.crypto_code,
+      fiatAmount: -transaction.value.money,
+      cryptoAmount: -transaction.value.crypto_amount
+    })
     alertType.value = 'success'
     alertTitle.value = 'Éxito'
     alertMessage.value = 'Transacción eliminada correctamente.'
