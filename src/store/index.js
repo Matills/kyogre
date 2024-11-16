@@ -15,6 +15,7 @@ export default createStore({
     },
     logout(state) {
       state.user = null
+      state.wallet = []
     },
     setWallet(state, wallet) {
       state.wallet = wallet

@@ -51,8 +51,6 @@
             </tr>
           </tbody>
         </table>
-
-        <p v-if="wallet.length === 0" class="text-gray-400 text-center">No tienes criptomonedas en tu billetera.</p>
       </div>
     </div>
 
@@ -128,6 +126,23 @@ const fetchWalletData = async () => {
   try {
     const userId = store.state.user.username
     const transactions = await getTransactions(userId)
+
+    if (!transactions || transactions.length === 0) {
+      const initialWallet = [
+        {
+          crypto_code: 'ars',
+          crypto_amount: 0,
+          money: 0,
+          price: 1,
+          balanceARS: 0,
+        }
+      ]
+      store.commit('setWallet', initialWallet)
+      totalBalance.value = 0
+      loading.value = false
+      return
+    }
+
     const walletMap = {}
     let arsAmount = 0
 
@@ -187,6 +202,7 @@ const fetchWalletData = async () => {
     store.commit('setWallet', walletFiltered)
     totalBalance.value = Object.values(walletMap).reduce((total, coin) => total + (coin.balanceARS || 0), 0)
   } catch (error) {
+    console.error(error)
     showAlert.value = true
     alertMessage.value = 'Error al cargar los datos de la billetera.'
     alertTitle.value = 'Error'
