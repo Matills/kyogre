@@ -1,5 +1,7 @@
 # kyogre
 
+Este proyecto es un sistema para gestionar una cartera de criptomonedas. La aplicación permite registrar compras y ventas de criptomonedas, consultar un historial de transacciones, editar o eliminar registros, y analizar el estado actual y el rendimiento de las inversiones.
+
 ## Project setup
 ```
 npm install
